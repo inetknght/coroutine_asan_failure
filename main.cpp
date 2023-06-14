@@ -104,17 +104,15 @@ async_listen(
 	{
 		auto s= co_await acceptor.async_accept(asio::use_awaitable);
 		spdlog::info("connection from {}", s.remote_endpoint());
-		asio::spawn(
+		co_spawn(
 			acceptor.get_executor(),
 			[&, socket = std::move(s)](
-				asio::yield_context yield
-			) mutable
+			) mutable -> asio::awaitable<void>
 			{
-				boost::system::error_code ec;
-				auto written = asio::async_write(
+				auto written = co_await asio::async_write(
 					socket,
 					asio::buffer(reply),
-					yield[ec]
+					asio::use_awaitable
 				);
 				throw std::runtime_error{std::to_string(written)};
 			},
@@ -150,6 +148,7 @@ int main()
 	try
 	{
 		iox.run();
+		throw std::runtime_error{"thrown exception did not reach main()"};
 	}
 	catch (const std::runtime_error& e)
 	{
