@@ -34,6 +34,7 @@ OPTION(ASAN_BUILD "When on, we will build for and link against Address Sanitizer
 IF(ASAN_BUILD)
         MESSAGE(STATUS "Address Sanitizer libraries selected")
         ADD_COMPILE_OPTIONS(-fsanitize=address -fno-omit-frame-pointer)
+        ADD_COMPILE_DEFINITIONS(DBOOST_USE_ASAN=1)
         ADD_LINK_OPTIONS(-fsanitize=address -fno-omit-frame-pointer)
 ENDIF()
 

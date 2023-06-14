@@ -30,7 +30,8 @@ RUN true \
 	&& ./bootstrap.sh \
 		--prefix=/opt/boost/1.82.0/ \
 	&& ./b2 \
-		cxxflags="-fPIC -std=c++20" \
+		cxxflags="-fPIC -std=c++20 -fsanitize=address" \
+		context-impl=ucontext \
 		threading=multi \
 		-j"$(nproc)" \
 	&& ./b2 install \
