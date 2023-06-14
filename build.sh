@@ -2,6 +2,9 @@
 
 set -euox pipefail
 
+# many developers forget to init/update submodules
+git submodule update --init --recursive
+
 docker build \
 	--target coroutine_asan_failure_packages \
 	--tag coroutine_asan_failure_packages \
