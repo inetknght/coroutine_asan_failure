@@ -22,25 +22,25 @@ RUN true \
 	&& true
 
 FROM coroutine_asan_failure_packages AS coroutine_asan_failure_build_boost
-WORKDIR /opt/boost/1.81.0
+WORKDIR /opt/boost/1.82.0
 RUN true \
-	&& curl -fLOsS 'https://boostorg.jfrog.io/artifactory/main/release/1.81.0/source/boost_1_81_0.tar.bz2' \
-	&& tar -xf 'boost_1_81_0.tar.bz2' \
-	&& cd boost_1_81_0 \
+	&& curl -fLOsS 'https://boostorg.jfrog.io/artifactory/main/release/1.82.0/source/boost_1_82_0.tar.bz2' \
+	&& tar -xf 'boost_1_82_0.tar.bz2' \
+	&& cd boost_1_82_0 \
 	&& ./bootstrap.sh \
-		--prefix=/opt/boost/1.81.0/ \
+		--prefix=/opt/boost/1.82.0/ \
 	&& ./b2 \
 		cxxflags="-fPIC -std=c++20" \
 		threading=multi \
 		-j"$(nproc)" \
 	&& ./b2 install \
-		--prefix=/opt/boost/1.81.0 \
+		--prefix=/opt/boost/1.82.0 \
 	&& rm -Rf \
-		/opt/boost/1.81.0/boost_1_81_0.tar.bz2 \
-		/opt/boost/1.81.0/boost_1_81_0/ \
+		/opt/boost/1.82.0/boost_1_82_0.tar.bz2 \
+		/opt/boost/1.82.0/boost_1_82_0/ \
 	&& true
 
-ENV BOOST_ROOT=/opt/boost/1.81.0
+ENV BOOST_ROOT=/opt/boost/1.82.0
 
 FROM coroutine_asan_failure_build_boost AS coroutine_asan_failure_build_example
 WORKDIR /usr/src/test/src
