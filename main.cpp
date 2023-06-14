@@ -1,3 +1,11 @@
+#include <cstdlib>
+#include <exception>
+#include <sstream>
+#include <stdexcept>
+#include <string>
+#include <string_view>
+
+#include <boost/asio/write.hpp>
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
 #include <boost/asio/io_context.hpp>
@@ -6,14 +14,6 @@
 namespace asio = boost::asio;
 
 #include <spdlog/spdlog.h>
-
-#include <algorithm>
-#include <exception>
-#include <sstream>
-#include <stdexcept>
-#include <string>
-#include <string_view>
-
 #include <spdlog/formatter.h>
 
 template <>
@@ -71,6 +71,13 @@ parse_address(
 	return ep;
 }
 
+constexpr auto reply = std::string_view{
+	"HTTP/1.1 204 No Content\r\n"
+	"Server: 127.0.0.1:8080\r\n"
+	"Connection: close\r\n"
+	"\r\n"
+};
+
 asio::awaitable<void>
 async_listen(
 	asio::io_context& iox)
@@ -95,7 +102,13 @@ async_listen(
 				asio::yield_context yield
 			) mutable
 			{
-				throw std::runtime_error{"foo"};
+				boost::system::error_code ec;
+				auto written = asio::async_write(
+					socket,
+					asio::buffer(reply),
+					yield[ec]
+				);
+				throw std::runtime_error{std::to_string(written)};
 			},
 			[](std::exception_ptr e)
 			{
@@ -124,5 +137,16 @@ int main()
 		}
 	);
 
-	iox.run();
+	try
+	{
+		iox.run();
+	}
+	catch (const std::runtime_error& e)
+	{
+		if (std::string_view{e.what()} != std::to_string(reply.size()))
+		{
+			throw;
+		}
+	}
+	return EXIT_SUCCESS;
 }
