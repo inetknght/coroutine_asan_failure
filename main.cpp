@@ -5,6 +5,14 @@
 #include <string>
 #include <string_view>
 
+#define STRINGIFY(x) #x
+#define XSTRINGIFY(x) STRINGIFY(x)
+#ifdef BOOST_USE_ASAN
+constexpr std::string_view boost_use_asan{XSTRINGIFY(BOOST_USE_ASAN)};
+#else
+constexpr std::string_view boost_use_asan{"NOT DEFINED"};
+#endif
+
 #include <boost/asio/write.hpp>
 #include <boost/asio/awaitable.hpp>
 #include <boost/asio/co_spawn.hpp>
@@ -123,6 +131,8 @@ async_listen(
 
 int main()
 {
+	spdlog::info("BOOST_USE_ASAN: {}", boost_use_asan);
+
 	asio::io_context iox;
 
 	co_spawn(
